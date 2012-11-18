@@ -6,6 +6,8 @@
 #include <linux/miscdevice.h>
 #include <linux/wait.h>
 #include <asm/io.h>
+#include <linux/ioctl.h>
+#include "cdata_ioctl.h"
 
 #ifdef CONFIG_SMP
 #define __SMP__
@@ -20,8 +22,8 @@ static int cdata_open(struct inode *inode, struct file *filp)
 	minor = MINOR(inode->i_rdev);
 	printk(KERN_ALERT "cdata: in cdata_open(minor = %d)\n", minor);
 
-	while (1) {
-	}
+//	while (1) {
+//	}
 
 	return 0;
 }
@@ -29,7 +31,20 @@ static int cdata_open(struct inode *inode, struct file *filp)
 static int cdata_ioctl(struct inode *inode, struct file *filp, 
 			unsigned int cmd, unsigned long arg)
 {
+	switch(cmd)
+	{
+		case IOCTL_EMPTY:
+			printk(KERN_ALERT "in ioctl: IOCTL_EMPTY");
+			break;
+		case IOCTL_SYNC:
+			printk(KERN_ALERT "in ioctl: IOCTL_SYNC");
+			break;
+		default:
+			return -1;
+	}
+			
 	printk(KERN_ALERT "cdata: in cdata_ioctl()\n");
+	return 0;
 }
 
 static ssize_t cdata_read(struct file *filp, char *buf, 
