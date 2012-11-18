@@ -18,12 +18,9 @@
 static int cdata_open(struct inode *inode, struct file *filp)
 {
 	int minor;
-
 	minor = MINOR(inode->i_rdev);
 	printk(KERN_ALERT "filp Address = %p\n", filp);
-
-//	while (1) {
-//	}
+	filp->private_data = kmalloc(1024,GFP_KERNEL);
 
 	return 0;
 }
@@ -35,9 +32,11 @@ static int cdata_ioctl(struct inode *inode, struct file *filp,
 	{
 		case IOCTL_EMPTY:
 			printk(KERN_ALERT "in ioctl: IOCTL_EMPTY");
+			filp->private_data = '\0';
+
 			break;
 		case IOCTL_SYNC:
-			printk(KERN_ALERT "in ioctl: IOCTL_SYNC");
+			printk(KERN_ALERT "Stream = %s",(char*)filp->private_data);
 			break;
 		default:
 			return EINVAL;
@@ -57,12 +56,19 @@ static ssize_t cdata_write(struct file *filp, const char *buf,
 				size_t size, loff_t *off)
 {
 	printk(KERN_ALERT "cdata_write: %s\n", buf);
+
+	if(size == 0) return 0;
+
+	if(copy_from_user(filp->private_data,buf,size))
+		return -EFAULT;
+
 	return 0;
 }
 
 static int cdata_release(struct inode *inode, struct file *filp)
 {
 	printk(KERN_ALERT "cdata: in cdata_release()\n");
+	kfree(filp->private_data);
 	return 0;
 }
 
