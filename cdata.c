@@ -16,6 +16,7 @@
 
 #define	CDATA_MAJOR 121 
 #define     BUFSIZE	1024
+
 struct cdata_t {
 	char data[BUFSIZE];
 	int  index;
@@ -40,15 +41,17 @@ static int cdata_open(struct inode *inode, struct file *filp)
 static int cdata_ioctl(struct inode *inode, struct file *filp, 
 			unsigned int cmd, unsigned long arg)
 {
+	struct cdata_t *cdata = (struct cdata_t *)filp->private_data;
+
 	switch(cmd)
 	{
 		case IOCTL_EMPTY:
 			printk(KERN_ALERT "in ioctl: IOCTL_EMPTY");
-			filp->private_data = '\0';
-
+			cdata->data[0] = '\0';
+			cdata->index = 0;
 			break;
 		case IOCTL_SYNC:
-			printk(KERN_ALERT "Stream = %s",(char*)filp->private_data);
+			printk(KERN_ALERT "Stream = %s",cdata->data);
 			break;
 		default:
 			return EINVAL;
@@ -69,14 +72,16 @@ static ssize_t cdata_write(struct file *filp, const char *buf,
 {
 	struct cdata_t *cdata = (struct cdata_t *)filp->private_data;
 	int i;
-
+	// mutex lock
 	for( i=0; i < count; i++){
-		if( cdata->index >= BUFSIZE)
-			return -EFAULT;
+		if( cdata->index >= BUFSIZE){
+			current->state = TASK_UNINTERRUPTIBLE;
+			schedule();
+		}
 		if( copy_from_user(&cdata->data[cdata->index++], &buf[i], 1) )
 			return -EFAULT;
 	}
-
+	// mutex unlock
 	return 0;
 }
 

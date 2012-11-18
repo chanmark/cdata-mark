@@ -18,8 +18,9 @@ int main(void)
 		write(devfd, "12345", 5);
 	}
 
-	ioctl(devfd, IOCTL_EMPTY, NULL);
+	
 	ioctl(devfd, IOCTL_SYNC, NULL);
+	ioctl(devfd, IOCTL_EMPTY, NULL);
 
 	close(devfd);
 	return 0;
