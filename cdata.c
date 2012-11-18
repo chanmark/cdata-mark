@@ -15,12 +15,21 @@
 
 #define	CDATA_MAJOR 121 
 
+struct cdata_t {
+	char data[1024];
+	int  index;
+}
+
 static int cdata_open(struct inode *inode, struct file *filp)
 {
 	int minor;
+	struct cdata_t *cdata;
 	minor = MINOR(inode->i_rdev);
 	printk(KERN_ALERT "filp Address = %p\n", filp);
-	filp->private_data = kmalloc(1024,GFP_KERNEL);
+
+	cdata = (struct cdata_t *)kmalloc(sizeof(struct cdata_t),GFP_KERNEL);
+	
+	filp->privdate_data = (void *)cdata; 
 
 	return 0;
 }
