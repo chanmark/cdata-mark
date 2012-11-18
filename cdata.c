@@ -20,7 +20,7 @@ static int cdata_open(struct inode *inode, struct file *filp)
 	int minor;
 
 	minor = MINOR(inode->i_rdev);
-	printk(KERN_ALERT "cdata: in cdata_open(minor = %d)\n", minor);
+	printk(KERN_ALERT "filp Address = %p\n", filp);
 
 //	while (1) {
 //	}
