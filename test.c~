@@ -7,6 +7,9 @@ int main(void)
 {
 	int devfd;
 	int num = 0;
+	pid_t child;
+
+	child = fork();
 
 	devfd = open("/dev/cdata", O_RDONLY);
 	if(devfd == -1)

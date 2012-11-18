@@ -11,11 +11,11 @@ int main(void)
 
 	child = fork();
 
-	devfd = open("/dev/cdata", O_RDONLY);
-	if(devfd == -1)
-	{
-		printf("Can't open /dev/debug\n");
-		return -1;
+	devfd = open("/dev/cdata", O_RDWR);
+	if( child != 0 ) { // Parent
+		write(devfd, "ABCDE", 5);
+	}else{ 		// Child
+		write(devfd, "12345", 5);
 	}
 
 	ioctl(devfd, IOCTL_EMPTY, NULL);
