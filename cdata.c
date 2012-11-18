@@ -18,7 +18,7 @@
 struct cdata_t {
 	char data[1024];
 	int  index;
-}
+};
 
 static int cdata_open(struct inode *inode, struct file *filp)
 {
@@ -31,7 +31,7 @@ static int cdata_open(struct inode *inode, struct file *filp)
 
 	cdata = (struct cdata_t *)kmalloc(sizeof(struct cdata_t),GFP_KERNEL);
 	
-	filp->privdate_data = (void *)cdata; 
+	filp->private_data = (void *)cdata; 
 
 	return 0;
 }
@@ -66,12 +66,12 @@ static ssize_t cdata_read(struct file *filp, char *buf,
 static ssize_t cdata_write(struct file *filp, const char *buf, 
 				size_t size, loff_t *off)
 {
-	printk(KERN_ALERT "cdata_write: %s\n", buf);
+	struct cdata_t *cdata = (struct cdata_t *)filp->private_data;
+	int i;
 
-	if(size == 0) return 0;
-
-	if(copy_from_user(filp->private_data,buf,size))
-		return -EFAULT;
+	for( i=0; i < count; i++){
+		copy_from_user(cdata.data[i], buf[i], 1);
+	}
 
 	return 0;
 }
