@@ -8,15 +8,16 @@
 #include <asm/io.h>
 #include <linux/ioctl.h>
 #include "cdata_ioctl.h"
+#include <asm/uaccess.h>
 
 #ifdef CONFIG_SMP
 #define __SMP__
 #endif
 
 #define	CDATA_MAJOR 121 
-
+#define     BUFSIZE	1024
 struct cdata_t {
-	char data[1024];
+	char data[BUFSIZE];
 	int  index;
 };
 
@@ -64,13 +65,16 @@ static ssize_t cdata_read(struct file *filp, char *buf,
 }
 
 static ssize_t cdata_write(struct file *filp, const char *buf, 
-				size_t size, loff_t *off)
+				size_t count, loff_t *off)
 {
 	struct cdata_t *cdata = (struct cdata_t *)filp->private_data;
 	int i;
 
 	for( i=0; i < count; i++){
-		copy_from_user(cdata.data[i], buf[i], 1);
+		if( cdata->index >= BUFSIZE)
+			return -EFAULT;
+		if( copy_from_user(&cdata->data[cdata->index++], &buf[i], 1) )
+			return -EFAULT;
 	}
 
 	return 0;
