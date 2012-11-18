@@ -77,6 +77,7 @@ static ssize_t cdata_write(struct file *filp, const char *buf,
 		if( cdata->index >= BUFSIZE){
 			current->state = TASK_UNINTERRUPTIBLE;
 			schedule();
+			//current->state = TASK_RUNNING; -> it is Error;
 		}
 		if( copy_from_user(&cdata->data[cdata->index++], &buf[i], 1) )
 			return -EFAULT;
